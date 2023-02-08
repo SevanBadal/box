@@ -1,3 +1,5 @@
+# Box
+[![NPM](https://img.shields.io/npm/v/channel-box)](https://www.npmjs.com/package/channel-box)
 | recommond using node `v16-17`
 ## Setup
 1. clone this repo
