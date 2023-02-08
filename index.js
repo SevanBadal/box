@@ -73,7 +73,6 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
         { name: cmds[2]},
       ])
     if (!error) {
-      console.log(data)
       fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
       console.log(`Checked out into box ${cmds[2]}`)
     } else {
