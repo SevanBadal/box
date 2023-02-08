@@ -16,3 +16,7 @@
         - `channel`::Text
 - file in your own keys in the `.env` file
 
+ex: 
+```bash
+box dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
+```
