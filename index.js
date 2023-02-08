@@ -36,6 +36,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     }
     console.log("common Box commands:")
     console.log("box w/out args prints the current box name")
+    console.log(`<box-name> "message"` + calcSpaces(`<box-name> "message"`.length) + "Send a message to the specified box name") 
     console.log("ls"  + calcSpaces("ls".length) + "list ids in current box")
     console.log("ls -l"  + calcSpaces("ls -l".length) + "list ids, sender box and timestamp")
     console.log("cat <id>"  + calcSpaces("cat <id>".length) + "prints the contents of a message in the current box")
