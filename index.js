@@ -66,7 +66,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   }
 
   if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
-    const newConfigObject = {channel: cmds[1]} 
+    const newConfigObject = {channel: cmds[2]} 
     const { data, error } = await supabase
       .from('channel')
       .insert([
@@ -75,11 +75,12 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     if (!error) {
       console.log(data)
       fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
-      console.log(`Checked out into box ${cmds[1]}`)
+      console.log(`Checked out into box ${cmds[2]}`)
     } else {
       if (error.code == '23505') {
-        console.log("remote channel " + channel + " already on exists")
-        console.log("checked out into " + channel)
+        fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
+        console.log("remote channel " + newConfigObject.channel + " already exists")
+        console.log("checked out into " + newConfigObject.channel)
       }
     }
 
