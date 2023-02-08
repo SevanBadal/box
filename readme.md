@@ -3,7 +3,7 @@
 
 A terminal message passing app powered by [Supabase](https://supabase.com/)
 
-| recommond using node `v16-17`
+| recommended node versions: `v16-17`
 ## Setup
 1. clone this repo
 2. create a `.env` file in the root project dir (contact me for keys if you want the global database!)
@@ -20,7 +20,7 @@ A terminal message passing app powered by [Supabase](https://supabase.com/)
         - `receiver`::Text (setup as foreign key on channel if you want)
         - `sender`::Text  (setup as foreign key on channel if you want)
         - `channel`::Text
-- file in your own keys in the `.env` file
+- fill in your own keys in the `.env` file
 
 ex: 
 ```bash
