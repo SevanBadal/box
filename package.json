@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "box",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,12 +8,22 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
-  "author": "",
+  "author": "Sevan Golnazarian",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SevanBadal/box"
+  },
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.7.1",
     "dotenv": "^16.0.3"
   },
+  "keywords": [
+    "terminal",
+    "chat",
+    "messaging",
+    "terminal-app"
+  ],
   "bin": {
     "box": "./index.js"
   }
