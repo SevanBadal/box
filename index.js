@@ -103,6 +103,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     const indentDepth = `total: ${message.length}`.length
     const spaces = Array.from({length: indentDepth}, () => "-").join("");
     message.forEach((x, i)=> console.log( spaces + `${x.name}` ))
+    console.log(`create a new box: box checkout -b <box-name>`)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'cat') {
