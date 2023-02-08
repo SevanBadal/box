@@ -64,9 +64,6 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log(`Checked out into box ${cmds[1]}`)
     process.exit(0)
   }
-  // cmd[0] -- reply
-  // cmd[1] -- content id
-  // cmd[2] -- new content
   if (cmds.length === 3 && cmds[0] === 'reply') {
 
     // fetch content and sender of cmds[1]
@@ -77,7 +74,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
         .single()
     let threadBuilder = ""
     threadBuilder = cmds[2] + '\n ~ ' + channel + '\n'  + `\n\n-------------------${message.created_at}\n\n`
-    threadBuilder = threadBuilder + message.content + "\n\n" + message.sender
+    threadBuilder = threadBuilder + message.content + "\n\n"
     const { data: new_message, error: new_message_error } = await supabase
       .from('message')
       .insert([
