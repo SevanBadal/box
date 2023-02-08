@@ -1,3 +1,4 @@
+| recommond using node `v16-17`
 ## Setup
 1. clone this repo
 2. create a `.env` file in the root project dir (contact me for keys if you want the global database!)
