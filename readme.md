@@ -1,5 +1,8 @@
 # Box
 [![NPM](https://img.shields.io/npm/v/channel-box)](https://www.npmjs.com/package/channel-box)
+
+A terminal message passing app powered by [Supabase](https://supabase.com/)
+
 | recommond using node `v16-17`
 ## Setup
 1. clone this repo
