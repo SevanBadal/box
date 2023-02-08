@@ -39,6 +39,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log("ls"  + calcSpaces("ls".length) + "list ids in current box")
     console.log("ls -l"  + calcSpaces("ls -l".length) + "list ids, sender box and timestamp")
     console.log("cat <id>"  + calcSpaces("cat <id>".length) + "prints the contents of a message in the current box")
+    console.log("ls -c"  + calcSpaces("ls -l".length) + "list channels")
     console.log("checkout <box-name>"  + calcSpaces("checkout <box-name>".length) + "sets the local box as the specified box name")
     console.log("checkout -b <box-name>"  + calcSpaces("checkout -b <box-name>".length) + "creates a remote box (if not already on remote) and sets the local box to the specified box name")
     console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
@@ -93,7 +94,17 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log(`total: ${message.length}`)
     message.forEach((x, i)=> console.log( `${x.id}  ${x.sender}  ${x.created_at}` ))
     process.exit(0)
-  } 
+  }
+  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
+    let { data: message, error } = await supabase
+      .from('channel')
+      .select('name')
+    console.log(`total: ${message.length}`)
+    const indentDepth = `total: ${message.length}`.length
+    const spaces = Array.from({length: indentDepth}, () => "-").join("");
+    message.forEach((x, i)=> console.log( spaces + `${x.name}` ))
+    process.exit(0)
+  }
   if (cmds.length === 2 && cmds[0] === 'cat') {
     let { data: message, error } = await supabase
         .from('message')
