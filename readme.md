@@ -9,7 +9,7 @@ A terminal message passing app powered by [Supabase](https://supabase.com/)
 2. create a `.env` file in the root project dir (contact me for keys if you want the global database!)
 3. `npm i`
 4. `npm link`
-5. 'run box --help' for a list of commands
+5. run `box --help` for a list of commands
 
 ## Self Hosted
 - create a supabase project with the following tables
