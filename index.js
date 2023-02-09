@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os'
 import * as fs from 'fs';
+import * as readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +26,21 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   if (data) {
     channel = JSON.parse(data)?.channel;
   }
+
+  if (cmds.length === 2 && cmds[0] === 'open') {
+    console.log("You're in " + cmds[1] + "'s box")
+    const rl = readline.createInterface({ input, output });
+    supabase
+      .channel('any')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message', filter: `receiver=eq.${cmds[1]}` }, payload => {
+          console.log(payload.new.content)
+        })
+        .subscribe()
+    const close = await rl.question("");
+    rl.close();
+    process.exit(0)
+  }
+  
   // no commands then exit
   if (cmds.length === 0) {
     console.log("current box: " + channel)
