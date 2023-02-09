@@ -20,7 +20,10 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 const args = process.argv
 const [one, two, ...cmds] = args
-
+const clearLastLine = () => {
+  process.stdout.moveCursor(0, -1) // up one line
+  process.stdout.clearLine(1) // from cursor to end
+}
 fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   let channel = "global"
   if (data) {
@@ -36,7 +39,19 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
           console.log(payload.new.content)
         })
         .subscribe()
-    const close = await rl.question("");
+    while (true) {
+      const input = await rl.question("");
+      clearLastLine()
+      if (input === ":quit") {
+        break;
+      } else {
+        const { data, error } = await supabase
+        .from('message')
+        .insert([
+          { receiver: cmds[1], sender: channel, content: input + '\n ~ ' + channel + '\n'  },
+        ])
+      }
+    }
     rl.close();
     process.exit(0)
   }
@@ -130,6 +145,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     message.forEach((x, i)=> console.log( `${x.id}  ${x.sender}  ${x.created_at}` ))
     process.exit(0)
   }
+
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
     let { data: message, error } = await supabase
       .from('channel')
@@ -141,6 +157,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log(`create a new box: box checkout -b <box-name>`)
     process.exit(0)
   }
+
   if (cmds.length === 2 && cmds[0] === 'cat') {
     let { data: message, error } = await supabase
         .from('message')
