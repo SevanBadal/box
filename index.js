@@ -42,6 +42,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log("ls -c"  + calcSpaces("ls -l".length) + "list channels")
     console.log("checkout <box-name>"  + calcSpaces("checkout <box-name>".length) + "sets the local box as the specified box name")
     console.log("checkout -b <box-name>"  + calcSpaces("checkout -b <box-name>".length) + "creates a remote box (if not already on remote) and sets the local box to the specified box name")
+    console.log("<channel> <message>" + calcSpaces("<channel> <message>".length)+ "sends a message to the specific channel")
     console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
     process.exit(0)
   }
