@@ -118,10 +118,14 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'rm') {
-    const { data, error } = await supabase
+    const ids = cmds[1];
+    const listOfIds = ids.split(",");
+    for(const id of listOfIds) {
+      const { data, error } = await supabase
       .from('message')
       .delete()
-      .eq('id', cmds[1])
+      .eq('id', id)
+    }
     process.exit(0)
   }
   // send a message to channel - ["<channel-name>", "message"]
