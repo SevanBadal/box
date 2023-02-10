@@ -7,7 +7,6 @@
     "start": "node -r dotenv/config index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module",
   "author": "Sevan Golnazarian",
   "repository": {
     "type": "git",
