@@ -1,20 +1,17 @@
 #!/usr/bin/env node
-import * as dotenv from 'dotenv'
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { homedir } from 'os'
-import * as fs from 'fs';
-import * as readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({path: path.join(__dirname, '.env')});
+const path = require('node:path');
+require('dotenv').config({path: path.join(__dirname, '.env')});
+const { fileURLToPath } = require('node:url')
+const { homedir } = require('node:os');
+const fs = require('fs');
+const readline = require('node:readline/promises');
+const { stdin : input, stdout : output } = require('node:process')
+const { makeYellow, makeMagenta, makeBlue, makeCyan } = require('./lib/colors.js')
 
 const userHomeDir = homedir()
 
 // supabase configs
-import { createClient } from '@supabase/supabase-js'
+const {createClient} = require('@supabase/supabase-js')
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
@@ -36,7 +33,11 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     supabase
       .channel('any')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message', filter: `receiver=eq.${cmds[1]}` }, payload => {
-          console.log(payload.new.content)
+          if (payload.new.sender === channel) {
+            console.log(makeBlue(payload.new.content))
+          } else {
+            console.log(makeMagenta(payload.new.content))
+          }
         })
         .subscribe()
     while (true) {
