@@ -1,65 +1,16 @@
 #!/usr/bin/env node
-import * as dotenv from 'dotenv'
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { homedir } from 'os'
 import * as fs from 'fs';
-import * as readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({path: path.join(__dirname, '.env')});
-
+import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
+import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
 const userHomeDir = homedir()
-
-// supabase configs
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 const args = process.argv
 const [one, two, ...cmds] = args
-const clearLastLine = () => {
-  process.stdout.moveCursor(0, -1) // up one line
-  process.stdout.clearLine(1) // from cursor to end
-}
+
 fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   let channel = "global"
   if (data) {
     channel = JSON.parse(data)?.channel;
-  }
-
-  if (cmds.length === 2 && cmds[0] === 'open') {
-    console.log("You're in " + cmds[1] + "'s box")
-    const rl = readline.createInterface({ input, output });
-    supabase
-      .channel('any')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message', filter: `receiver=eq.${cmds[1]}` }, payload => {
-          console.log(payload.new.content)
-        })
-        .subscribe()
-    while (true) {
-      const input = await rl.question("");
-      clearLastLine()
-      if (input === ":quit") {
-        break;
-      } else {
-        const { data, error } = await supabase
-        .from('message')
-        .insert([
-          { receiver: cmds[1], sender: channel, content: input + '\n ~ ' + channel + '\n'  },
-        ])
-      }
-    }
-    rl.close();
-    process.exit(0)
-  }
-  
-  // no commands then exit
-  if (cmds.length === 0) {
-    console.log("current box: " + channel)
-    process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] == '--help') {
     const calcSpaces = (buffer) => {
@@ -79,115 +30,49 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
     process.exit(0)
   }
-  // ls messages in user channel
-  if (cmds.length === 1 && cmds[0] === 'ls') {
-    let { data: message, error } = await supabase
-      .from('message')
-      .select('id')
-      .eq('receiver', channel)
-      console.log('box/' + channel)
-    const indentDepth = channel.length + 4
-    const spaces = Array.from({length: indentDepth}, () => "-").join("");
-    message.forEach(x => console.log(spaces + x.id))
+  if (cmds.length === 2 && cmds[0] === 'open') {
+    await connectToChannel(cmds[1], channel)
     process.exit(0)
   }
-
+  if (cmds.length === 0) {
+    console.log("current box: " + channel)
+    process.exit(0)
+  }
+  if (cmds.length === 1 && cmds[0] === 'ls') {
+    await getMessages(channel)
+    process.exit(0)
+  }
+  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
+    await getDetailedMessages(channel)
+    process.exit(0)
+  }
+  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
+    await getChannels();
+    process.exit(0)
+  }
   if (cmds.length === 2 && cmds[0] === 'checkout') {
-    const newConfigObject = {channel: cmds[1]} 
-    fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
-    console.log(`Checked out into box ${cmds[1]}`)
+    await updateChannel(cmds[1])
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'reply') {
-
-    // fetch content and sender of cmds[1]
-    let { data: message, error } = await supabase
-        .from('message')
-        .select('content, sender, created_at')
-        .eq('id', cmds[1])
-        .single()
-    let threadBuilder = ""
-    threadBuilder = cmds[2] + '\n ~ ' + channel + '\n'  + `\n\n-------------------${message.created_at}\n\n`
-    threadBuilder = threadBuilder + message.content + "\n\n"
-    const { data: new_message, error: new_message_error } = await supabase
-      .from('message')
-      .insert([
-      { receiver: message.sender, sender: channel, content: threadBuilder },
-      ])
+    await replyToMessage(cmds[1], cmds[2], channel)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
-    const newConfigObject = {channel: cmds[2]} 
-    const { data, error } = await supabase
-      .from('channel')
-      .insert([
-        { name: cmds[2]},
-      ])
-    if (!error) {
-      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
-      console.log(`Checked out into box ${cmds[2]}`)
-    } else {
-      if (error.code == '23505') {
-        fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
-        console.log("remote channel " + newConfigObject.channel + " already exists")
-        console.log("checked out into " + newConfigObject.channel)
-      }
-    }
-
+    await createChannel(cmds[2])
     process.exit(0)
   }
-
-  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
-    let { data: message, error } = await supabase
-      .from('message')
-      .select('id, sender, created_at')
-      .eq('receiver', channel)
-    console.log(`total: ${message.length}`)
-    message.forEach((x, i)=> console.log( `${x.id}  ${x.sender}  ${x.created_at}` ))
-    process.exit(0)
-  }
-
-  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
-    let { data: message, error } = await supabase
-      .from('channel')
-      .select('name')
-    console.log(`total: ${message.length}`)
-    const indentDepth = `total: ${message.length}`.length
-    const spaces = Array.from({length: indentDepth}, () => "-").join("");
-    message.forEach((x, i)=> console.log( spaces + `${x.name}` ))
-    console.log(`create a new box: box checkout -b <box-name>`)
-    process.exit(0)
-  }
-
   if (cmds.length === 2 && cmds[0] === 'cat') {
-    let { data: message, error } = await supabase
-        .from('message')
-        .select('content, sender')
-        .eq('id', cmds[1])
-    message.forEach(x => {
-      console.log('\n' + x.content)
-    })
-    process.exit(0)
+    await getMessage(cmds[1], channel)
+    process.exit(0);
   }
   if (cmds.length === 2 && cmds[0] === 'rm') {
-    const ids = cmds[1];
-    const listOfIds = ids.split(",");
-    const { data, error } = await supabase
-    .from('message')
-    .delete()
-    .in('id', listOfIds)
+    await deleteMessages(cmds[1])
     process.exit(0)
   }
   // send a message to channel - ["<channel-name>", "message"]
   if (cmds.length === 2 ) {
-    const { data, error } = await supabase
-      .from('message')
-      .insert([
-      { receiver: cmds[0], sender: channel, content: cmds[1] + '\n ~ ' + channel + '\n'  },
-      ])
-    if (error) {
-      console.log('send error', error)
-    }
+    await sendMessage(cmds[0], channel, cmds[1])
     process.exit(0)
   }
 });
