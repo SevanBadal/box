@@ -3,6 +3,7 @@ import { homedir } from 'os'
 import * as fs from 'fs';
 import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
 import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
+import { register, login, logout } from './Controllers/UserController.js';
 const userHomeDir = homedir()
 const args = process.argv
 const [one, two, ...cmds] = args
@@ -42,6 +43,10 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     await getMessages(channel)
     process.exit(0)
   }
+  if (cmds.length === 1 && cmds[0] === 'logout') {
+    await logout()
+    process.exit(0)
+  }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
     await getDetailedMessages(channel)
     process.exit(0)
@@ -60,6 +65,14 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   }
   if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
     await createChannel(cmds[2])
+    process.exit(0)
+  }
+  if (cmds.length === 3 && cmds[0] === 'register') {
+    await register(cmds[1], cmds[2])
+    process.exit(0)
+  }
+  if (cmds.length === 3 && cmds[0] === 'login') {
+    await login(cmds[1], cmds[2])
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'cat') {
