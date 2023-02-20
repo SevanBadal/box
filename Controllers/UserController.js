@@ -45,11 +45,24 @@ export const login = async (email, password) => {
       console.log(error.message)
     }else{
       console.log("Login Succcesfull");
-      console.log(data);
+      //console.log(data);
+      const userData = JSON.stringify(data);
+
       // save data.session in a local file
-    //   fs.writeFile(userHomeDir + '/userSession.json', 'utf8', async function(err, data) {
-    //     return()
-    //   }
+
+      // Attempt using AppendFile
+      // fs.appendFile(userHomeDir + '/.boxrc.json', 'write this to file bitch', 'utf8', function(err)  {
+      //   if (err) throw err;
+      //   console.log('Session Data written to file.');
+      // });
+
+      // Attempt using Writeable Streams
+        //const addUserInfo = fs.createWriteStream(userHomeDir + '/.boxrc.json', { flags: 'a' });
+        // on new log entry ->
+        //addUserInfo.write('this is new stuff');
+        // you can skip closing the stream if you want it to be opened while
+        // a program runs, then file handle will be closed
+        //addUserInfo.end();
     }
 }
 
