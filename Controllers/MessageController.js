@@ -4,15 +4,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "../.env") });
+import { getSupabase } from "../Helpers/supabase.js";
 
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export const getMessages = async (channel) => {
-  let { data: message, error } = await supabase
+export const getMessages = async (channel, session) => {
+  let { data: message, error } = await getSupabase(session.access_token)
     .from("message")
     .select("id")
     .eq("receiver", channel);
@@ -23,7 +18,7 @@ export const getMessages = async (channel) => {
 };
 
 export const getDetailedMessages = async (channel) => {
-  let { data: message, error } = await supabase
+  let { data: message, error } = await getSupabase()
     .from('message')
     .select('id, sender, created_at')
     .eq('receiver', channel)
@@ -31,8 +26,8 @@ export const getDetailedMessages = async (channel) => {
   message.forEach((x, i)=> console.log( `${x.id}  ${x.sender}  ${x.created_at}` ))
 }
 
-export const getMessage = async (id) => {
-  let { data: message, error } = await supabase
+export const getMessage = async (id, channel, session) => {
+  let { data: message, error } = await getSupabase(session.access_token)
     .from("message")
     .select("content, sender")
     .eq("id", id);
@@ -42,7 +37,7 @@ export const getMessage = async (id) => {
 };
 
 export const replyToMessage = async (id, content, sender) => {
-  let { data: message, error } = await supabase
+  let { data: message, error } = await getSupabase()
     .from("message")
     .select("content, sender, created_at")
     .eq("id", id)
@@ -55,23 +50,23 @@ export const replyToMessage = async (id, content, sender) => {
     "\n" +
     `\n\n-------------------${message.created_at}\n\n`;
   threadBuilder = threadBuilder + message.content + "\n\n";
-  const { data: new_message, error: new_message_error } = await supabase
+  const { data: new_message, error: new_message_error } = await getSupabase()
     .from("message")
     .insert([
       { receiver: message.sender, sender, content: threadBuilder },
     ]);
 };
 
-export const deleteMessages = async (ids) => {
+export const deleteMessages = async (ids, session) => {
   const listOfIds = ids.split(",");
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase(session.access_token)
     .from('message')
     .delete()
     .in('id', listOfIds)
 }
 
-export const sendMessage = async (receiver, sender, content) => {
-  const { data, error } = await supabase
+export const sendMessage = async (receiver, sender, content, session) => {
+  const { data, error } = await getSupabase(session.access_token)
   .from('message')
   .insert([
     { receiver, 

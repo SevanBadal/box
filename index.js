@@ -10,8 +10,11 @@ const [one, two, ...cmds] = args
 
 fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   let channel = "global"
+  let session = undefined
   if (data) {
-    channel = JSON.parse(data)?.channel;
+    let sessionData = JSON.parse(data)
+    channel = sessionData?.channel;
+    session = sessionData?.session;
   }
   if (cmds.length === 1 && cmds[0] == '--help') {
     const calcSpaces = (buffer) => {
@@ -40,11 +43,11 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'ls') {
-    await getMessages(channel)
+    await getMessages(channel, session)
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'logout') {
-    await logout()
+    await logout(channel)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
@@ -72,20 +75,20 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'login') {
-    await login(cmds[1], cmds[2])
+    await login(cmds[1], cmds[2], {channel})
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'cat') {
-    await getMessage(cmds[1], channel)
+    await getMessage(cmds[1], channel, session)
     process.exit(0);
   }
   if (cmds.length === 2 && cmds[0] === 'rm') {
-    await deleteMessages(cmds[1])
+    await deleteMessages(cmds[1], session)
     process.exit(0)
   }
   // send a message to channel - ["<channel-name>", "message"]
   if (cmds.length === 2 ) {
-    await sendMessage(cmds[0], channel, cmds[1])
+    await sendMessage(cmds[0], channel, cmds[1], session)
     process.exit(0)
   }
 });
