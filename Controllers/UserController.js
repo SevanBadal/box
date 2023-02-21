@@ -67,6 +67,5 @@ export const logout = async (channel) => {
       console.log("Logged Out");
       // delete local stored session 
       fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel}));
-
     }
 }
