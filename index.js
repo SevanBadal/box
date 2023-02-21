@@ -44,7 +44,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'logout') {
-    await logout()
+    await logout(channel)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
@@ -72,7 +72,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'login') {
-    await login(cmds[1], cmds[2])
+    await login(cmds[1], cmds[2], channel)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'cat') {
