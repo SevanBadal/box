@@ -3,7 +3,7 @@ import { homedir } from 'os'
 import * as fs from 'fs';
 import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
 import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
-import { register, login, logout } from './Controllers/UserController.js';
+import { register, login, logout, getMe } from './Controllers/UserController.js';
 const userHomeDir = homedir()
 const args = process.argv
 const [one, two, ...cmds] = args
@@ -36,6 +36,10 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   }
   if (cmds.length === 2 && cmds[0] === 'open') {
     await connectToChannel(cmds[1], channel)
+    process.exit(0)
+  }
+  if (cmds.length === 1 && cmds[0] === 'me') {
+    await getMe(session)
     process.exit(0)
   }
   if (cmds.length === 0) {

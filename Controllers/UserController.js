@@ -9,6 +9,7 @@ dotenv.config({path: path.join(__dirname, '../.env')})
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '../Helpers/supabase.js'
 
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
@@ -35,6 +36,15 @@ export const register = async (email, password) => {
     }
 }
 
+export const getMe = async (session) => {
+  console.log(session)
+  const { data: { user }, error} = await getSupabase(session.access_token).auth.getUser()
+  if (error) {
+    console.log(error)
+  } else {
+    console.log(user)
+  }
+}
 
 export const login = async (email, password, {channel}) => {
     const { data, error } = await supabase.auth.signInWithPassword({
