@@ -75,7 +75,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'register') {
-    await register(cmds[1], cmds[2])
+    await register(cmds[1], cmds[2], channel)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'login') {

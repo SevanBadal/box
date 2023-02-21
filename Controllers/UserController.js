@@ -23,7 +23,7 @@ const clearLastLine = () => {
 }
 
 
-export const register = async (email, password) => {
+export const register = async (email, password, channel) => {
     const {data, error} = await supabase.auth.signUp({
       email,
       password,
@@ -31,8 +31,8 @@ export const register = async (email, password) => {
     if(error){
       console.log(error.message)
     }else{
-      console.log('User created successfully')
-      // save user data and session locally i think data.user??
+      const session = data.session;
+      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel, session}));
     }
 }
 
