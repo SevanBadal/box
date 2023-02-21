@@ -55,7 +55,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
-    await getDetailedMessages(channel)
+    await getDetailedMessages(channel, session)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
@@ -63,15 +63,15 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'checkout') {
-    await updateChannel(cmds[1])
+    await updateChannel(cmds[1], session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'reply') {
-    await replyToMessage(cmds[1], cmds[2], channel)
+    await replyToMessage(cmds[1], cmds[2], channel, session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
-    await createChannel(cmds[2])
+    await createChannel(cmds[2], session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'register') {

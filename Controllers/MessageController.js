@@ -17,8 +17,8 @@ export const getMessages = async (channel, session) => {
   message.forEach((x) => console.log(spaces + x.id));
 };
 
-export const getDetailedMessages = async (channel) => {
-  let { data: message, error } = await getSupabase()
+export const getDetailedMessages = async (channel, session) => {
+  let { data: message, error } = await getSupabase(session.access_token)
     .from('message')
     .select('id, sender, created_at')
     .eq('receiver', channel)
@@ -36,8 +36,8 @@ export const getMessage = async (id, channel, session) => {
   });
 };
 
-export const replyToMessage = async (id, content, sender) => {
-  let { data: message, error } = await getSupabase()
+export const replyToMessage = async (id, content, sender, session) => {
+  let { data: message, error } = await getSupabase(session.access_token)
     .from("message")
     .select("content, sender, created_at")
     .eq("id", id)
@@ -50,7 +50,7 @@ export const replyToMessage = async (id, content, sender) => {
     "\n" +
     `\n\n-------------------${message.created_at}\n\n`;
   threadBuilder = threadBuilder + message.content + "\n\n";
-  const { data: new_message, error: new_message_error } = await getSupabase()
+  const { data: new_message, error: new_message_error } = await getSupabase(session.access_token)
     .from("message")
     .insert([
       { receiver: message.sender, sender, content: threadBuilder },
