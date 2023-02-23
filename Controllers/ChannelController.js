@@ -32,14 +32,14 @@ export const getChannels = async () => {
   console.log(`create a new box: box checkout -b <box-name>`)
 }
 
-export const updateChannel = async (channel) => {
-  const newConfigObject = {channel} 
+export const updateChannel = async (channel, session) => {
+  const newConfigObject = {channel, session} 
   fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify(newConfigObject)); 
   console.log(`Checked out into box ${channel}`)
 }
 
-export const createChannel = async (channel) => {
-  const newConfigObject = {channel} 
+export const createChannel = async (channel, session) => {
+  const newConfigObject = {channel, session} 
   const { data, error } = await supabase
     .from('channel')
     .insert([

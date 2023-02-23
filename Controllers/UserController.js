@@ -9,6 +9,7 @@ dotenv.config({path: path.join(__dirname, '../.env')})
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from '../Helpers/supabase.js'
 
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
@@ -22,7 +23,7 @@ const clearLastLine = () => {
 }
 
 
-export const register = async (email, password) => {
+export const register = async (email, password, channel) => {
     const {data, error} = await supabase.auth.signUp({
       email,
       password,
@@ -30,13 +31,22 @@ export const register = async (email, password) => {
     if(error){
       console.log(error.message)
     }else{
-      console.log('User created successfully')
-      // save user data and session locally i think data.user??
+      const session = data.session;
+      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel, session}));
     }
 }
 
+export const getMe = async (session) => {
+  console.log(session)
+  const { data: { user }, error} = await getSupabase(session.access_token).auth.getUser()
+  if (error) {
+    console.log(error)
+  } else {
+    console.log(user)
+  }
+}
 
-export const login = async (email, password, channel) => {
+export const login = async (email, password, {channel}) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -44,11 +54,8 @@ export const login = async (email, password, channel) => {
     if(error){
       console.log(error.message)
     }else{
-      console.log("Login Succcesfull")
-      //console.log(data);
-      const userData = data
-      // save user/session data && current channel to file
-      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel, userData})); 
+      const session = data.session;
+      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel, session}));
     }
 }
 
@@ -58,7 +65,7 @@ export const logout = async (channel) => {
       console.log(error.message)
     }else{
       console.log("Logged Out");
-      // Write channel to file thereby deleting local user/session info
-      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel})); 
+      // delete local stored session 
+      fs.writeFileSync(userHomeDir + '/.boxrc.json', JSON.stringify({channel}));
     }
 }

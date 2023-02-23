@@ -3,15 +3,18 @@ import { homedir } from 'os'
 import * as fs from 'fs';
 import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
 import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
-import { register, login, logout } from './Controllers/UserController.js';
+import { register, login, logout, getMe } from './Controllers/UserController.js';
 const userHomeDir = homedir()
 const args = process.argv
 const [one, two, ...cmds] = args
 
 fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   let channel = "global"
+  let session = undefined
   if (data) {
-    channel = JSON.parse(data)?.channel;
+    let sessionData = JSON.parse(data)
+    channel = sessionData?.channel;
+    session = sessionData?.session;
   }
   if (cmds.length === 1 && cmds[0] == '--help') {
     const calcSpaces = (buffer) => {
@@ -39,12 +42,16 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     await connectToChannel(cmds[1], channel)
     process.exit(0)
   }
+  if (cmds.length === 1 && cmds[0] === 'me') {
+    await getMe(session)
+    process.exit(0)
+  }
   if (cmds.length === 0) {
     console.log("current box: " + channel)
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'ls') {
-    await getMessages(channel)
+    await getMessages(channel, session)
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'logout') {
@@ -52,7 +59,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
-    await getDetailedMessages(channel)
+    await getDetailedMessages(channel, session)
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
@@ -60,36 +67,36 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'checkout') {
-    await updateChannel(cmds[1])
+    await updateChannel(cmds[1], session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'reply') {
-    await replyToMessage(cmds[1], cmds[2], channel)
+    await replyToMessage(cmds[1], cmds[2], channel, session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
-    await createChannel(cmds[2])
+    await createChannel(cmds[2], session)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'register') {
-    await register(cmds[1], cmds[2])
+    await register(cmds[1], cmds[2], channel)
     process.exit(0)
   }
   if (cmds.length === 3 && cmds[0] === 'login') {
-    await login(cmds[1], cmds[2], channel)
+    await login(cmds[1], cmds[2], {channel})
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'cat') {
-    await getMessage(cmds[1], channel)
+    await getMessage(cmds[1], channel, session)
     process.exit(0);
   }
   if (cmds.length === 2 && cmds[0] === 'rm') {
-    await deleteMessages(cmds[1])
+    await deleteMessages(cmds[1], session)
     process.exit(0)
   }
   // send a message to channel - ["<channel-name>", "message"]
   if (cmds.length === 2 ) {
-    await sendMessage(cmds[0], channel, cmds[1])
+    await sendMessage(cmds[0], channel, cmds[1], session)
     process.exit(0)
   }
 });
