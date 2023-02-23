@@ -20,6 +20,10 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     }
     console.log("common Box commands:")
     console.log("box w/out args prints the current box name")
+    console.log("register <email> <password>" + calcSpaces("register <email> <password>".length) + " Creates a box account")
+    console.log("login <email> <password>" + calcSpaces("login <email> <password>".length) + "Logs into box")
+    console.log("logout" + calcSpaces("logout".length) + "Logs out of box")
+    console.log("getMe" + calcSpaces("getMe".length) + "returns your authenticated user")
     console.log(`<box-name> "message"` + calcSpaces(`<box-name> "message"`.length) + "Send a message to the specified box name") 
     console.log("ls"  + calcSpaces("ls".length) + "list ids in current box")
     console.log("ls -l"  + calcSpaces("ls -l".length) + "list ids, sender box and timestamp")
