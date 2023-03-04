@@ -17,9 +17,9 @@ A terminal message passing app powered by [Supabase](https://supabase.com/)
         - `created_at`
         - `name`::Text
     - `message` 
-        - `receiver`::Text (setup as foreign key on channel if you want)
-        - `sender`::Text  (setup as foreign key on channel if you want)
-        - `channel`::Text
+        - `receiver`::Text (foreign key relation: receiver -> channel.name)
+        - `sender`::Text  (foreign key relation: sender -> channel.name)
+        - `content`::Text
 - fill in your own keys in the `.env` file
 
 ex: 
