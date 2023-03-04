@@ -26,6 +26,3 @@ ex:
 ```bash
 box dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
 ```
-receiver :: Text (foreign key relation: receiver -> channel.name)
-sender :: Text (foreign key relation: sender -> channel.name)
-content :: Text
