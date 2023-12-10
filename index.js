@@ -23,7 +23,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     }
     console.log("common Box commands:")
     console.log("box w/out args prints the current box name")
-    console.log("register <email> <password>" + calcSpaces("register <email> <password>".length) + " Creates a box account")
+    console.log("register <email> <password>" + calcSpaces("register <email> <password>".length) + "Creates a box account")
     console.log("login <email> <password>" + calcSpaces("login <email> <password>".length) + "Logs into box")
     console.log("logout" + calcSpaces("logout".length) + "Logs out of box")
     console.log("me" + calcSpaces("me".length) + "returns your authenticated user")
@@ -31,17 +31,16 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log("ls"  + calcSpaces("ls".length) + "list ids in current box")
     console.log("ls -l"  + calcSpaces("ls -l".length) + "list ids, sender box and timestamp")
     console.log("cat <id>"  + calcSpaces("cat <id>".length) + "prints the contents of a message in the current box")
-    console.log("ls -c"  + calcSpaces("ls -l".length) + "list channels")
+    console.log("ls -b"  + calcSpaces("ls -l".length) + "list all boxes")
     console.log("checkout <box-name>"  + calcSpaces("checkout <box-name>".length) + "sets the local box as the specified box name")
     console.log("checkout -b <box-name>"  + calcSpaces("checkout -b <box-name>".length) + "creates a remote box (if not already on remote) and sets the local box to the specified box name")
-    console.log("<channel> <message>" + calcSpaces("<channel> <message>".length)+ "sends a message to the specific channel")
+    console.log("<box-name> <message>" + calcSpaces("<box-name> <message>".length)+ "sends a message to the specific box")
     console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
     console.log('reply 226 <your message in dquotes>' + calcSpaces('reply 226 <your message in dquotes>'.length) + "sends a reply to a message")
-    console.log('open <channel-name>' + calcSpaces('open <box-name>'.length) + "opens a live chat within a box channel")
+    console.log('open <box-name>' + calcSpaces('open <box-name>'.length) + "opens a live chat within a specific box")
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'open') {
-    console.log("open channel")
     await connectToChannel(cmds[1], channel, session)
     process.exit(0)
   }
