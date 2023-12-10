@@ -1,7 +1,7 @@
 # Box
 [![NPM](https://img.shields.io/npm/v/channel-box)](https://www.npmjs.com/package/channel-box)
 
-A terminal message passing app powered by [Supabase](https://supabase.com/)
+A terminal message passing app powered by [Supabase](https://supabase.com/) with realtime messaging support: `box open global`
 
 | recommended node versions: `v16-17`
 ## Setup
@@ -13,16 +13,10 @@ A terminal message passing app powered by [Supabase](https://supabase.com/)
 
 ## Self Hosted
 - create a supabase project with the following tables
-    - `channel`
-        - `created_at`
-        - `name`::Text
-    - `message` 
-        - `receiver`::Text (setup as foreign key on channel if you want)
-        - `sender`::Text  (setup as foreign key on channel if you want)
-        - `channel`::Text
-- fill in your own keys in the `.env` file
+<img width="1154" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/99889d33-4fad-4a25-9eba-6d1c696b4a67">
+- create an `.env` file and provide the values specified in `.env.example`
 
-ex: 
+ex `box` command: 
 ```bash
 box dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
 ```
