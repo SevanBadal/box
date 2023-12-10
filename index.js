@@ -4,101 +4,130 @@ import * as fs from 'fs';
 import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
 import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
 import { register, login, logout, getMe } from './Controllers/UserController.js';
+import { Command } from 'commander';
+
 const userHomeDir = homedir()
 const args = process.argv
 const [one, two, ...cmds] = args
+const program = new Command();
+
 
 fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
-  let channel = "global"
+  let currentChannel = "global"
   let session = undefined
+
   if (data) {
     let sessionData = JSON.parse(data)
-    channel = sessionData?.channel;
+    currentChannel = sessionData?.channel;
     session = sessionData?.session;
   }
-  if (cmds.length === 1 && cmds[0] == '--help') {
-    const calcSpaces = (buffer) => {
-      const spaces = Array.from({length: 40 - buffer}, () => " ").join("");
-      return spaces
-    }
-    console.log("common Box commands:")
-    console.log("box w/out args prints the current box name")
-    console.log("register <email> <password>" + calcSpaces("register <email> <password>".length) + "Creates a box account")
-    console.log("login <email> <password>" + calcSpaces("login <email> <password>".length) + "Logs into box")
-    console.log("logout" + calcSpaces("logout".length) + "Logs out of box")
-    console.log("me" + calcSpaces("me".length) + "returns your authenticated user")
-    console.log(`<box-name> "message"` + calcSpaces(`<box-name> "message"`.length) + "Send a message to the specified box name") 
-    console.log("ls"  + calcSpaces("ls".length) + "list ids in current box")
-    console.log("ls -l"  + calcSpaces("ls -l".length) + "list ids, sender box and timestamp")
-    console.log("cat <id>"  + calcSpaces("cat <id>".length) + "prints the contents of a message in the current box")
-    console.log("ls -b"  + calcSpaces("ls -l".length) + "list all boxes")
-    console.log("checkout <box-name>"  + calcSpaces("checkout <box-name>".length) + "sets the local box as the specified box name")
-    console.log("checkout -b <box-name>"  + calcSpaces("checkout -b <box-name>".length) + "creates a remote box (if not already on remote) and sets the local box to the specified box name")
-    console.log("<box-name> <message>" + calcSpaces("<box-name> <message>".length)+ "sends a message to the specific box")
-    console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
-    console.log('reply 226 <your message in dquotes>' + calcSpaces('reply 226 <your message in dquotes>'.length) + "sends a reply to a message")
-    console.log('open <box-name>' + calcSpaces('open <box-name>'.length) + "opens a live chat within a specific box")
-    process.exit(0)
-  }
-  if (cmds.length === 2 && cmds[0] === 'open') {
-    await connectToChannel(cmds[1], channel, session)
-    process.exit(0)
-  }
-  if (cmds.length === 1 && cmds[0] === 'me') {
-    await getMe(session)
-    process.exit(0)
-  }
-  if (cmds.length === 0) {
-    console.log("current box: " + channel)
-    process.exit(0)
-  }
-  if (cmds.length === 1 && cmds[0] === 'ls') {
-    await getMessages(channel, session)
-    process.exit(0)
-  }
-  if (cmds.length === 1 && cmds[0] === 'logout') {
-    await logout(channel)
-    process.exit(0)
-  }
-  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-l') {
-    await getDetailedMessages(channel, session)
-    process.exit(0)
-  }
-  if (cmds.length === 2 && cmds[0] === 'ls' && cmds[1] === '-c') {
-    await getChannels();
-    process.exit(0)
-  }
-  if (cmds.length === 2 && cmds[0] === 'checkout') {
-    await updateChannel(cmds[1], session)
-    process.exit(0)
-  }
-  if (cmds.length === 3 && cmds[0] === 'reply') {
-    await replyToMessage(cmds[1], cmds[2], channel, session)
-    process.exit(0)
-  }
-  if (cmds.length === 3 && cmds[0] === 'checkout' && cmds[1] === '-b') {
-    await createChannel(cmds[2], session)
-    process.exit(0)
-  }
-  if (cmds.length === 3 && cmds[0] === 'register') {
-    await register(cmds[1], cmds[2], channel)
-    process.exit(0)
-  }
-  if (cmds.length === 3 && cmds[0] === 'login') {
-    await login(cmds[1], cmds[2], {channel})
-    process.exit(0)
-  }
-  if (cmds.length === 2 && cmds[0] === 'cat') {
-    await getMessage(cmds[1], channel, session)
-    process.exit(0);
-  }
-  if (cmds.length === 2 && cmds[0] === 'rm') {
-    await deleteMessages(cmds[1], session)
-    process.exit(0)
-  }
-  // send a message to channel - ["<channel-name>", "message"]
-  if (cmds.length === 2 ) {
-    await sendMessage(cmds[0], channel, cmds[1], session)
-    process.exit(0)
-  }
+  
+  program
+    .command('open')
+    .argument('<box-channel>', 'open live chat for specified box channel')
+    .action(async (targetChannel) => {
+      await connectToChannel(targetChannel, currentChannel, session)
+    });
+    
+  program
+    .command('me')
+    .description('returns your authenticated user details')
+    .action(async () => {
+      await getMe(session)
+    });
+  
+  program
+    .command('pwd')
+    .description('prints the current box name')
+    .action(async () => {
+      console.log("current box: " + currentChannel)
+    });
+  
+  program
+    .command('logout')
+    .description('logs out of box and deletes current session data')
+    .action(async (targetChannel) => {
+      await logout(currentChannel)
+    });
+    
+  program
+    .command('login')
+    .argument('<email>', 'email associated with a registered box account')
+    .argument('<password>', 'password associated with registered account')
+    .action(async (email, password) => {
+      await login(email, password, {channel: currentChannel})
+    });
+  
+  program
+    .command('ls')
+    .description('list ids in current box')
+    .option('-l', 'list ids, sender box and timestamp')
+    .option('-c', 'list all box channels')
+    .action(async ({l, c}) => {
+      if(l) {
+        await getDetailedMessages(currentChannel, session)
+      }
+      if(c) {
+        await getChannels();
+      }
+      await getMessages(currentChannel, session)
+    });
+    
+    program
+      .command('checkout')
+      .description('checkout into a box channel')
+      .argument('<box-channel>', 'box channel you want to checkout into')
+      .option('-b', 'create and checkout into a new box channel')
+      .action(async (targetChannel, {b}) => {
+        if(b) {
+         await createChannel(targetChannel, session)
+        }
+        await updateChannel(targetChannel, session)
+      });
+
+    program
+      .command('reply')
+      .description('reply to a message')
+      .argument('<message-id>', 'box id you want to respond to')
+      .argument('<message-string>', 'a message you want to send as a reply')
+      .action(async (messageId, replyMessage) => {
+        await replyToMessage(messageId, replyMessage, currentChannel, session)
+      });
+
+    program
+      .command('register')
+      .description('register an account')
+      .argument('<email>', 'email you want to associate with your box account')
+      .argument('<password>', 'password for your account')
+      .action(async (email, password) => {
+        await register(email, password, currentChannel)
+      });
+
+    program
+      .command('cat')
+      .description('print the contents of a message given a message id')
+      .argument('<message-id>', 'id of message you want to view')
+      .action(async (messageId) => {
+        await getMessage(messageId, currentChannel, session)
+      });
+      
+    program
+      .command('rm')
+      .description('delete a message given comma seperated message ids')
+      .argument('<message-id>', 'one or more comma seperated ids of messages you want to delete')
+      .action(async (messageIds) => {
+        await deleteMessages(messageIds, session)
+      });
+
+    program
+      .command('ship')
+      .description('send a message to a box')
+      .argument('<box-channel>', 'box channel you want to send a message to')
+      .argument('<message-string>', 'a message you want to send to the specified box channel')
+      .action(async (targetChannel, message) => {
+        await sendMessage(targetChannel, currentChannel, message, session)
+      });
+
+  await program.parseAsync(process.argv);
+
 });
