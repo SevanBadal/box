@@ -26,6 +26,6 @@ A terminal message passing app powered by [Supabase](https://supabase.com/) with
 
 ex `box` command: 
 ```bash
-box dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
+box ship dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
 ```
-run `box --help` for details!
+run `box` for details!
