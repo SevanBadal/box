@@ -1,7 +1,7 @@
 # Box
 [![NPM](https://img.shields.io/npm/v/channel-box)](https://www.npmjs.com/package/channel-box)
 
-A terminal message passing app powered by [Supabase](https://supabase.com/) with realtime messaging support: `box open global`
+A terminal message passing app powered by [Supabase](https://supabase.com/) with authentication and realtime messaging support: `box open global`
 
 | recommended node versions: `v16-17`
 ## Setup
