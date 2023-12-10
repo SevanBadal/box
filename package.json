@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.7.1",
+    "commander": "^11.1.0",
     "dotenv": "^16.0.3"
   },
   "keywords": [
