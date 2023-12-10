@@ -18,7 +18,7 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   }
   if (cmds.length === 1 && cmds[0] == '--help') {
     const calcSpaces = (buffer) => {
-      const spaces = Array.from({length: 25 - buffer}, () => " ").join("");
+      const spaces = Array.from({length: 40 - buffer}, () => " ").join("");
       return spaces
     }
     console.log("common Box commands:")
@@ -36,10 +36,13 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     console.log("checkout -b <box-name>"  + calcSpaces("checkout -b <box-name>".length) + "creates a remote box (if not already on remote) and sets the local box to the specified box name")
     console.log("<channel> <message>" + calcSpaces("<channel> <message>".length)+ "sends a message to the specific channel")
     console.log("rm <id>"  + calcSpaces("rm <id>".length) + "deletes the box of a given id")
+    console.log('reply 226 <your message in dquotes>' + calcSpaces('reply 226 <your message in dquotes>'.length) + "sends a reply to a message")
+    console.log('open <channel-name>' + calcSpaces('open <box-name>'.length) + "opens a live chat within a box channel")
     process.exit(0)
   }
   if (cmds.length === 2 && cmds[0] === 'open') {
-    await connectToChannel(cmds[1], channel)
+    console.log("open channel")
+    await connectToChannel(cmds[1], channel, session)
     process.exit(0)
   }
   if (cmds.length === 1 && cmds[0] === 'me') {

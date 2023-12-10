@@ -8,11 +8,8 @@ const __dirname = path.dirname(__filename)
 dotenv.config({path: path.join(__dirname, '../.env')})
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { createClient } from '@supabase/supabase-js'
+import { getSupabase } from "../Helpers/supabase.js";
 
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 const userHomeDir = homedir()
 
@@ -22,6 +19,7 @@ const clearLastLine = () => {
 }
 
 export const getChannels = async () => {
+  const supabase = getSupabase()
   let { data: message, error } = await supabase
     .from('channel')
     .select('name')
@@ -40,6 +38,7 @@ export const updateChannel = async (channel, session) => {
 
 export const createChannel = async (channel, session) => {
   const newConfigObject = {channel, session} 
+  const supabase = getSupabase(session.access_token)
   const { data, error } = await supabase
     .from('channel')
     .insert([
@@ -57,15 +56,26 @@ export const createChannel = async (channel, session) => {
   }
 }
 
-export const connectToChannel = async (receiver, sender) => {
-  console.log("You're in " + receiver + "'s box")
+export const connectToChannel = async (receiver, sender, session) => {
+  const supabase = getSupabase(session.access_token)
+  supabase.realtime.accessToken = session.access_token
   const rl = readline.createInterface({ input, output });
-  supabase
+
+  const channel = supabase
     .channel('any')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message', filter: `receiver=eq.${receiver}` }, payload => {
-        console.log(payload.new.content)
-      })
-      .subscribe()
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'message', filter: `receiver=eq.${receiver}` }, 
+    (payload) => {
+      console.log(payload.new.content)
+    })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        console.log("You're in " + receiver + "'s box\n")
+      } else {
+        throw new Error("The connection failed")
+      }
+    })
+ 
+
   while (true) {
     const input = await rl.question("");
     clearLastLine()
@@ -77,7 +87,12 @@ export const connectToChannel = async (receiver, sender) => {
       .insert([
         { receiver, sender, content: input + '\n ~ ' + sender + '\n'  },
       ])
+      if (error) {
+        console.log(error)
+      }
     }
   }
+  channel.unsubscribe()
+  supabase.removeAllChannels()
   rl.close();
 }
