@@ -1,7 +1,7 @@
 # Box
 [![NPM](https://img.shields.io/npm/v/channel-box)](https://www.npmjs.com/package/channel-box)
 
-A terminal message passing app powered by [Supabase](https://supabase.com/)
+A terminal message passing app powered by [Supabase](https://supabase.com/) with authentication and realtime messaging support: `box open global`
 
 | recommended node versions: `v16-17`
 ## Setup
@@ -12,17 +12,20 @@ A terminal message passing app powered by [Supabase](https://supabase.com/)
 5. run `box --help` for a list of commands
 
 ## Self Hosted
+- create an `.env` file and provide the values specified in `.env.example`
 - create a supabase project with the following tables
-    - `channel`
-        - `created_at`
-        - `name`::Text
-    - `message` 
-        - `receiver`::Text (setup as foreign key on channel if you want)
-        - `sender`::Text  (setup as foreign key on channel if you want)
-        - `channel`::Text
-- fill in your own keys in the `.env` file
+<img width="1154" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/99889d33-4fad-4a25-9eba-6d1c696b4a67">
+- add the following RLS policies
+<img width="1161" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/ba8feacb-23fb-44e1-818f-252626ce6e53">
+<img width="1161" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/69c75bc6-0882-4049-ae6e-ebb30821fb4d">
+<img width="1161" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/e9a3043f-4534-491e-a746-c5dfdcb02d5a">
+<img width="1161" alt="image" src="https://github.com/SevanBadal/box/assets/41360054/56d111af-6ffa-429c-bc58-0df055d8e722">
 
-ex: 
+`Channels` are public but you could enable RLS for them as well. 
+
+
+ex `box` command: 
 ```bash
 box dev "$(ls ./some/dir)" # sends the out put of a bash command to the dev channel
 ```
+run `box --help` for details!
