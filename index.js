@@ -64,13 +64,13 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
     .option('-l', 'list ids, sender box and timestamp')
     .option('-c', 'list all box channels')
     .action(async ({l, c}) => {
-      if(l) {
+      if (l) {
         await getDetailedMessages(currentChannel, session)
-      }
-      if(c) {
+      } else if (c) {
         await getChannels();
+      } else {
+        await getMessages(currentChannel, session)
       }
-      await getMessages(currentChannel, session)
     });
     
     program
