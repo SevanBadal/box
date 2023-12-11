@@ -67,10 +67,12 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
       if(l) {
         await getDetailedMessages(currentChannel, session)
       }
-      if(c) {
+      else if(c) {
         await getChannels();
       }
-      await getMessages(currentChannel, session)
+      else{
+        await getMessages(currentChannel, session)
+      }
     });
     
     program
