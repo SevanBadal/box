@@ -70,6 +70,8 @@ export const connectToChannel = async (receiver, sender, session) => {
     .subscribe((status) => {
       if (status === "SUBSCRIBED") {
         console.log("You're in " + receiver + "'s box\n")
+      } else if (status === "CLOSED") { 
+        console.log("You have quit the session.")
       } else {
         throw new Error("The connection failed")
       }
