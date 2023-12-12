@@ -21,28 +21,28 @@ const clearScreen = () => {
   process.stdout.write('\x1B[2J\x1B[0f');
 };
 
+const formattedUserString = (user) => {
+  const localTime = new Date(user.online_at).toLocaleString(); // Converts to local time string
+  return `${user.user} ${localTime}`;
+}
+
 const logFormattedSync = (sync) => {
   Object.values(sync).forEach(userArray => {
     const formattedString = userArray.map(x => {
-      const localTime = new Date(x.online_at).toLocaleString(); // Converts to local time string
-      return `${x.user} ${localTime}`;
+      return formattedUserString(x)
     }).join("\n");
     console.log('👋', formattedString);
   });
 }
 
 function findNewUsers(newState, previousState) {
-  const newUsers = [];
   for (const key in newState) {
-    if (newState.hasOwnProperty(key) && (!previousState[key] || previousState[key].length < newState[key].length)) {
-      newState[key].forEach(user => {
-        if (!previousState[key] || !previousState[key].some(prevUser => prevUser.user === user.user)) {
-          newUsers.push(user.user);
-        }
-      });
+    const newUser = newState.hasOwnProperty(key) && (!previousState[key])
+    if ( newUser ) {
+      const [userObject] = newState[key]
+      return userObject
     }
   }
-  return newUsers;
 }
 
 export const register = async (email, password, channel) => {
@@ -105,11 +105,12 @@ export const wave = async (session) => {
     .channel('wave')
     .on('presence', { event: 'sync' }, () => {
       const newState = waveRoom.presenceState();
-      const newUsers = findNewUsers(newState, previousState);
-      if (newUsers.length > 0) {
+      const newUser = findNewUsers(newState, previousState);
+      if (newUser) {
+        console.log("new user", newUser)
         nodeNotifier.notify({
-          title: "New users have entered 📦",
-          message: newUsers.join(', '),
+          title: "A user is waving in 📦",
+          message: `👋 ${newUser.user}`,
           sound: true
         });
       }
@@ -119,9 +120,7 @@ export const wave = async (session) => {
     })
     .subscribe(async (status) => {
       if (status !== 'SUBSCRIBED') { return }
-    
       const presenceTrackStatus = await waveRoom.track(userStatus)
-      console.log(presenceTrackStatus)
     })
 
     while (true) {
