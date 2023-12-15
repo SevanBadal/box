@@ -32,7 +32,15 @@ const getPassword = () => {
     input.resume();
     input.setEncoding('utf8');
     input.on('data', (key) => {
-      if (key === '\n' || key === '\r' || key === '\u0004') {
+      // add check for backspace and remove last char in password and remove last char in output
+      if (key === '\u0008' || key === '\u007f'){
+        if (password.length > 0) {
+          password = password.slice(0, -1);
+          output.clearLine(-1); // Clear the current line
+          output.cursorTo(0);    // Move cursor to the start of the line
+          output.write('Password: ' + '*'.repeat(password.length));
+        }
+      } else if (key === '\n' || key === '\r' || key === '\u0004') {
         // They've finished typing their password
         input.setRawMode(false);
         input.pause();
@@ -43,6 +51,7 @@ const getPassword = () => {
         process.exit();
       } else {
         // Mask password
+        output.write('*');
         password += key;
       }
     });
