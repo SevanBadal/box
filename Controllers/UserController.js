@@ -22,8 +22,38 @@ const clearLastLine = () => {
   process.stdout.clearLine(1) // from cursor to end
 }
 
+const getPassword = () => {
 
-export const register = async (email, password, channel) => {
+  return new Promise((resolve) => {
+    // Turn off terminal echoing
+    let password = '';
+    output.write('Password: ');
+    input.setRawMode(true);
+    input.resume();
+    input.setEncoding('utf8');
+    input.on('data', (key) => {
+      if (key === '\n' || key === '\r' || key === '\u0004') {
+        // They've finished typing their password
+        input.setRawMode(false);
+        input.pause();
+        input.removeAllListeners('data');
+        resolve(password);
+      } else if (key === '\u0003') {
+        // Allow CTRL+C to exit process
+        process.exit();
+      } else {
+        // Mask password
+        password += key;
+      }
+    });
+  });
+};
+
+
+export const register = async (email, channel) => {
+    // should wait for user input for password, password shouldn't be visible
+    const password = await getPassword()
+
     const {data, error} = await supabase.auth.signUp({
       email,
       password,
@@ -37,7 +67,10 @@ export const register = async (email, password, channel) => {
 }
 
 export const getMe = async (session) => {
-  console.log(session)
+  if(!session) {
+    console.log("You are not logged in")
+    return
+  }
   const { data: { user }, error} = await getSupabase(session.access_token).auth.getUser()
   if (error) {
     console.log(error)
@@ -46,7 +79,8 @@ export const getMe = async (session) => {
   }
 }
 
-export const login = async (email, password, {channel}) => {
+export const login = async (email, {channel}) => {
+    const password = await getPassword()
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
