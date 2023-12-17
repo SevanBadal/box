@@ -53,9 +53,8 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
   program
     .command('login')
     .argument('<email>', 'email associated with a registered box account')
-    .argument('<password>', 'password associated with registered account')
-    .action(async (email, password) => {
-      await login(email, password, {channel: currentChannel})
+    .action(async (email) => {
+      await login(email, {channel: currentChannel})
     });
   
   program
@@ -98,9 +97,8 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
       .command('register')
       .description('register an account')
       .argument('<email>', 'email you want to associate with your box account')
-      .argument('<password>', 'password for your account')
-      .action(async (email, password) => {
-        await register(email, password, currentChannel)
+      .action(async (email) => {
+        await register(email, currentChannel)
       });
 
     program
