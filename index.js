@@ -3,7 +3,7 @@ import { homedir } from 'os'
 import * as fs from 'fs';
 import { deleteMessages, getDetailedMessages, getMessage, getMessages, replyToMessage, sendMessage } from './Controllers/MessageController.js';
 import { connectToChannel, createChannel, getChannels, updateChannel } from './Controllers/ChannelController.js';
-import { register, login, logout, getMe } from './Controllers/UserController.js';
+import { register, login, logout, getMe, wave } from './Controllers/UserController.js';
 import { Command } from 'commander';
 
 const userHomeDir = homedir()
@@ -125,6 +125,13 @@ fs.readFile(userHomeDir + '/.boxrc.json', 'utf8', async function(err, data) {
       .action(async (targetChannel, message) => {
         await sendMessage(targetChannel, currentChannel, message, session)
       });
+      
+    program
+      .command('wave')
+      .description('open a broadcast signaling you are using the box')
+      .action(async () => {
+        await wave(session)
+      })
 
   await program.parseAsync(process.argv);
 
