@@ -35,17 +35,45 @@ const logFormattedSync = (sync) => {
   });
 }
 
-function findNewUsers(newState, previousState) {
-  for (const key in newState) {
-    const newUser = newState.hasOwnProperty(key) && (!previousState[key])
-    if ( newUser ) {
-      const [userObject] = newState[key]
-      return userObject
-    }
-  }
-}
+const getPassword = () => {
+  return new Promise((resolve) => {
+    // Turn off terminal echoing
+    let password = '';
+    output.write('Password: ');
+    input.setRawMode(true);
+    input.resume();
+    input.setEncoding('utf8');
+    input.on('data', (key) => {
+      // add check for backspace and remove last char in password and remove last char in output
+      if (key === '\u0008' || key === '\u007f'){
+        if (password.length > 0) {
+          password = password.slice(0, -1);
+          output.clearLine(-1); // Clear the current line
+          output.cursorTo(0);    // Move cursor to the start of the line
+          output.write('Password: ' + '*'.repeat(password.length));
+        }
+      } else if (key === '\n' || key === '\r' || key === '\u0004') {
+        // They've finished typing their password
+        input.setRawMode(false);
+        input.pause();
+        input.removeAllListeners('data');
+        resolve(password);
+      } else if (key === '\u0003') {
+        // Allow CTRL+C to exit process
+        process.exit();
+      } else {
+        // Mask password
+        output.write('*');
+        password += key;
+      }
+    });
+  });
+};
 
-export const register = async (email, password, channel) => {
+
+export const register = async (email, channel) => {
+    // should wait for user input for password, password shouldn't be visible
+    const password = await getPassword()
     const {data, error} = await supabase.auth.signUp({
       email,
       password,
@@ -58,8 +86,21 @@ export const register = async (email, password, channel) => {
     }
 }
 
+function findNewUsers(newState, previousState) {
+  for (const key in newState) {
+    const newUser = newState.hasOwnProperty(key) && (!previousState[key])
+    if ( newUser ) {
+      const [userObject] = newState[key]
+      return userObject
+    }
+  }
+}
+
 export const getMe = async (session) => {
-  console.log(session)
+  if(!session) {
+    console.log("You are not logged in")
+    return
+  }
   const { data: { user }, error} = await getSupabase(session.access_token).auth.getUser()
   if (error) {
     console.log(error)
@@ -68,7 +109,8 @@ export const getMe = async (session) => {
   }
 }
 
-export const login = async (email, password, {channel}) => {
+export const login = async (email, {channel}) => {
+    const password = await getPassword()
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
